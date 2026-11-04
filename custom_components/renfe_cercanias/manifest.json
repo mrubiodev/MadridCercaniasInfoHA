@@ -1,0 +1,17 @@
+{
+  "domain": "renfe_cercanias",
+  "name": "Renfe Cercanías Madrid",
+  "codeowners": [
+    "@MarioRubio"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/MarioRubio/ha-renfe-cercanias",
+  "issue_tracker": "https://github.com/MarioRubio/ha-renfe-cercanias/issues",
+  "integration_type": "hub",
+  "iot_class": "cloud_polling",
+  "requirements": [
+    "requests>=2.31.0",
+    "pytz>=2024.1"
+  ],
+  "version": "1.2.0"
+}

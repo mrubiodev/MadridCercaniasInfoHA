@@ -1,0 +1,105 @@
+{
+  "title": "Renfe Cercanias Madrid",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nuevo trayecto de Cercanias",
+        "description": "Configura el trayecto. Luego podras editarlo desde Configurar.",
+        "data": {
+          "journey_name": "Nombre del trayecto (ej: Manana C5)",
+          "line": "Linea (vacío para cualquiera)",
+          "n_trains": "Numero de trenes a mostrar",
+          "active_from": "Activo desde (HH:MM, vacio = siempre)",
+          "active_to": "Activo hasta (HH:MM, vacio = siempre)"
+        }
+      },
+      "stop_search": {
+        "title": "Buscar estacion de origen",
+        "description": "Escribe parte del nombre o el ID de la estacion. Si no hay resultados, puedes usar el ID manual. {all_hint}",
+        "data": {
+          "stop_query": "Nombre o ID de la estacion"
+        }
+      },
+      "stop_select": {
+        "title": "Selecciona la estacion",
+        "description": "Se encontraron {results_count} resultados.",
+        "data": {
+          "stop_id": "Estacion"
+        }
+      },
+      "preview": {
+        "title": "Previsualizacion del trayecto",
+        "description": "Parada: {preview_stop} ({preview_stop_id})\nLinea: {preview_line}\nTrenes a mostrar: {preview_n}\nVentana: {preview_window}\n\nProximas salidas:\n{preview_trains}",
+        "data": {
+          "change_stop": "Cambiar estacion",
+          "confirm_create": "Crear sensor con esta configuracion"
+        }
+      },
+      "destination_select": {
+        "title": "Selecciona el destino (dirección)",
+        "description": "Estación de origen: {stop_name}\nSe encontraron {destinations_count} destinos posibles. Selecciona la estación de destino o hacia dónde viajas para filtrar únicamente los trenes en esa dirección:",
+        "data": {
+          "destination_id": "Estación de destino"
+        }
+      }
+    },
+    "error": {
+      "query_too_short": "Introduce al menos 2 caracteres",
+      "no_results": "No se encontraron estaciones con ese nombre o ID",
+      "stop_id_not_found": "El ID de estacion no se encuentra en la BD de Renfe. Revisa el ID o busca por nombre.",
+      "gtfs_error": "No se pudieron cargar los datos de estaciones de Renfe. Revisa conexion e intenta de nuevo.",
+      "invalid_time": "Formato invalido, usa HH:MM (ej: 07:30)",
+      "preview_error": "No se pudo generar la previsualizacion. Revisa la configuracion e intentalo de nuevo."
+    },
+    "abort": {
+      "already_configured": "Este trayecto ya esta configurado",
+      "preview_cancelled": "Creacion de trayecto cancelada en previsualizacion"
+    }
+  },
+  "options": {
+    "abort": {
+      "yaml_managed": "Este trayecto esta gestionado desde configuration.yaml y es de solo lectura en la interfaz."
+    },
+    "step": {
+      "init": {
+        "title": "Editar trayecto",
+        "description": "Origen actual: {current_stop}\nDestino actual: {current_dest}",
+        "data": {
+          "journey_name": "Nombre del trayecto",
+          "line": "Linea",
+          "n_trains": "Numero de trenes",
+          "active_from": "Activo desde (HH:MM)",
+          "active_to": "Activo hasta (HH:MM)",
+          "change_stop": "Cambiar estación de origen",
+          "change_destination": "Cambiar o filtrar estación de destino"
+        }
+      },
+      "stop_search": {
+        "title": "Nueva parada de origen",
+        "description": "{all_hint}",
+        "data": {
+          "stop_query": "Nombre o ID de la estacion"
+        }
+      },
+      "stop_select": {
+        "title": "Selecciona la estacion",
+        "data": {
+          "stop_id": "Estacion"
+        }
+      },
+      "destination_select": {
+        "title": "Cambiar destino (dirección)",
+        "description": "Estación de origen: {stop_name}\nSelecciona el nuevo destino para filtrar los trenes en esa dirección:",
+        "data": {
+          "destination_id": "Estación de destino"
+        }
+      }
+    },
+    "error": {
+      "query_too_short": "Introduce al menos 2 caracteres",
+      "no_results": "No se encontraron estaciones con ese nombre o ID",
+      "gtfs_error": "No se pudieron cargar los datos de estaciones de Renfe. Revisa conexion e intenta de nuevo.",
+      "invalid_time": "Formato invalido, usa HH:MM (ej: 07:30)"
+    }
+  }
+}

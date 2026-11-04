@@ -1,0 +1,48 @@
+refresh_gtfs:
+  name: Refrescar GTFS estatico
+  description: Fuerza la descarga y reconstruccion de la cache GTFS de Renfe Cercanias.
+  fields: {}
+
+explore:
+  name: Explorador temporal
+  description: Consulta una estacion o linea temporal sin crear un nuevo trayecto fijo.
+  fields:
+    query:
+      name: Texto de busqueda
+      description: Nombre parcial de estacion de origen (si no se indica stop_id).
+      required: false
+      selector:
+        text:
+    stop_id:
+      name: ID de estacion origen
+      description: ID exacto GTFS de la estacion de origen. Tiene prioridad sobre query.
+      required: false
+      selector:
+        text:
+    destination_id:
+      name: ID de estacion destino
+      description: ID exacto GTFS de la estacion destino para filtrar direccion.
+      required: false
+      selector:
+        text:
+    line:
+      name: Linea
+      description: Filtro opcional de linea (por ejemplo C5).
+      required: false
+      selector:
+        text:
+    n_trains:
+      name: Numero de trenes
+      description: Numero de salidas proximas a calcular.
+      required: false
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 10
+          step: 1
+
+clear_explorer:
+  name: Limpiar explorador
+  description: Limpia el ultimo resultado temporal del modo explorador.
+  fields: {}

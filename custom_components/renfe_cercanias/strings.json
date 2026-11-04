@@ -1,0 +1,105 @@
+{
+  "title": "Renfe Cercanias Madrid",
+  "config": {
+    "step": {
+      "user": {
+        "title": "New Cercanias journey",
+        "description": "Configure a journey. You can edit it later from Configure.",
+        "data": {
+          "journey_name": "Journey name (e.g. Morning C5)",
+          "line": "Line (leave empty for any)",
+          "n_trains": "Number of trains to show",
+          "active_from": "Active from (HH:MM, empty = always)",
+          "active_to": "Active to (HH:MM, empty = always)"
+        }
+      },
+      "stop_search": {
+        "title": "Search origin station",
+        "description": "Type part of the station name or station ID. If there are no results, you can use manual ID. {all_hint}",
+        "data": {
+          "stop_query": "Station name or ID"
+        }
+      },
+      "stop_select": {
+        "title": "Select station",
+        "description": "Found {results_count} results.",
+        "data": {
+          "stop_id": "Station"
+        }
+      },
+      "preview": {
+        "title": "Journey preview",
+        "description": "Station: {preview_stop} ({preview_stop_id})\nLine: {preview_line}\nTrains to show: {preview_n}\nWindow: {preview_window}\n\nUpcoming departures:\n{preview_trains}",
+        "data": {
+          "change_stop": "Change station",
+          "confirm_create": "Create sensor with this configuration"
+        }
+      },
+      "destination_select": {
+        "title": "Select destination (direction)",
+        "description": "Origin station: {stop_name}\nFound {destinations_count} possible destinations. Select your destination station to filter only trains travelling in that direction:",
+        "data": {
+          "destination_id": "Destination station"
+        }
+      }
+    },
+    "error": {
+      "query_too_short": "Enter at least 2 characters",
+      "no_results": "No stations found for that name or ID",
+      "stop_id_not_found": "Station ID not found in Renfe database. Check the ID or search by name.",
+      "gtfs_error": "Could not load Renfe station data. Check connectivity and try again.",
+      "invalid_time": "Invalid time format, use HH:MM (e.g. 07:30)",
+      "preview_error": "Could not generate journey preview. Check your configuration and try again."
+    },
+    "abort": {
+      "already_configured": "This journey is already configured",
+      "preview_cancelled": "Journey creation was cancelled in preview"
+    }
+  },
+  "options": {
+    "abort": {
+      "yaml_managed": "This journey is managed from configuration.yaml and is read-only in the UI."
+    },
+    "step": {
+      "init": {
+        "title": "Edit journey",
+        "description": "Current origin: {current_stop}\nCurrent destination: {current_dest}",
+        "data": {
+          "journey_name": "Journey name",
+          "line": "Line",
+          "n_trains": "Number of trains",
+          "active_from": "Active from (HH:MM)",
+          "active_to": "Active to (HH:MM)",
+          "change_stop": "Change origin station",
+          "change_destination": "Change or set destination station"
+        }
+      },
+      "stop_search": {
+        "title": "New origin station",
+        "description": "{all_hint}",
+        "data": {
+          "stop_query": "Station name or ID"
+        }
+      },
+      "stop_select": {
+        "title": "Select station",
+        "data": {
+          "stop_id": "Station"
+        }
+      },
+      "destination_select": {
+        "title": "Change destination station",
+        "description": "Origin station: {stop_name}\nSelect a destination station to filter trains in that direction:",
+        "data": {
+          "destination_id": "Destination station"
+        }
+      }
+    },
+    "error": {
+      "query_too_short": "Enter at least 2 characters",
+      "no_results": "No stations found for that name or ID",
+      "gtfs_error": "Could not load Renfe station data. Check connectivity and try again.",
+      "invalid_time": "Invalid time format, use HH:MM (e.g. 07:30)"
+    }
+  }
+}
