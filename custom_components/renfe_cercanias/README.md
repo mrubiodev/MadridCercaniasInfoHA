@@ -1,7 +1,7 @@
 # 🚆 Renfe Cercanías Madrid para Home Assistant
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/default)
-[![version](https://img.shields.io/badge/version-1.1.0-blue.svg)](manifest.json)
+[![version](https://img.shields.io/badge/version-1.2.0-blue.svg)](manifest.json)
 [![Home Assistant](https://img.shields.io/badge/Home%20Assistant-2024.1+-brightgreen.svg)](https://www.home-assistant.io/)
 
 Integración personalizada para **Home Assistant** que monitoriza en **tiempo real** los trenes de **Renfe Cercanías Madrid**.

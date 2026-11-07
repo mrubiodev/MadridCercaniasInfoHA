@@ -136,13 +136,13 @@ show_journeys: true
 
 ### Método 1: HACS (Recomendado)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=MarioRubio&repository=ha-renfe-cercanias&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mrubiodev&repository=MadridCercaniasInfoHA&category=integration)
 
 1. Abre **HACS** en tu Home Assistant.
 2. Pulsa en el menú de los tres puntos (arriba a la derecha) > **Repositorios personalizados**.
 3. Añade la URL del repositorio:
    ```text
-   https://github.com/MarioRubio/ha-renfe-cercanias
+   https://github.com/mrubiodev/MadridCercaniasInfoHA
    ```
 4. Selecciona la categoría **Integración** y pulsa **Añadir**.
 5. Busca **Renfe Cercanías Madrid**, pulsa **Descargar** y reinicia Home Assistant.
