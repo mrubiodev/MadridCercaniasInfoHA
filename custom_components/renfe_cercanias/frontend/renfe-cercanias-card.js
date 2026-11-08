@@ -3,6 +3,16 @@
  * Tarjeta interactiva para trayectos con cuenta atrás y próximas salidas.
  */
 
+window.customCards = window.customCards || [];
+if (!window.customCards.some((c) => c.type === "renfe-cercanias-card")) {
+  window.customCards.push({
+    type: "renfe-cercanias-card",
+    name: "Renfe Cercanías",
+    preview: true,
+    description: "Muestra el próximo tren y siguientes salidas de Cercanías Renfe con cuenta atrás y retrasos en tiempo real."
+  });
+}
+
 const LINE_COLORS = {
   "C1": { bg: "#0099cd", text: "#ffffff" },
   "C2": { bg: "#00954c", text: "#ffffff" },
@@ -35,10 +45,8 @@ class RenfeCercaniasCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config.entity) {
-      throw new Error("Por favor, selecciona una entidad de sensor de Renfe Cercanías.");
-    }
     this._config = {
+      entity: config.entity || "",
       name: config.name || "",
       show_next_only: config.show_next_only === true,
       max_trains: config.max_trains || 5,
@@ -48,8 +56,8 @@ class RenfeCercaniasCard extends HTMLElement {
   }
 
   set hass(hass) {
-    const oldState = this._hass?.states?.[this._config.entity];
-    const newState = hass?.states?.[this._config.entity];
+    const oldState = this._hass?.states?.[this._config?.entity];
+    const newState = hass?.states?.[this._config?.entity];
     this._hass = hass;
 
     if (oldState !== newState || !this.shadowRoot.innerHTML) {
@@ -64,8 +72,28 @@ class RenfeCercaniasCard extends HTMLElement {
   _render() {
     if (!this._config || !this._hass) return;
 
+    if (!this._config.entity) {
+      this.shadowRoot.innerHTML = `
+        <ha-card style="padding: 16px; text-align: center; color: var(--secondary-text-color, #757575);">
+          <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 6px; color: var(--primary-text-color, #212121);">Renfe Cercanías</div>
+          <div style="font-size: 0.9rem;">Por favor, selecciona una entidad de sensor de Renfe Cercanías en el editor.</div>
+        </ha-card>
+      `;
+      return;
+    }
+
     const stateObj = this._hass.states[this._config.entity];
-    const attrs = stateObj ? stateObj.attributes : {};
+    if (!stateObj) {
+      this.shadowRoot.innerHTML = `
+        <ha-card style="padding: 16px; text-align: center; color: var(--secondary-text-color, #757575);">
+          <div style="font-weight: 600; font-size: 1.05rem; margin-bottom: 6px; color: var(--primary-text-color, #212121);">${this._config.name || "Renfe Cercanías"}</div>
+          <div style="font-size: 0.9rem;">Esperando datos de la entidad <code>${this._config.entity}</code>...</div>
+        </ha-card>
+      `;
+      return;
+    }
+
+    const attrs = stateObj.attributes || {};
     const title = this._config.name || attrs.journey_name || "Renfe Cercanías";
     const stopName = attrs.stop_name || attrs.stop_id || "Estación";
     const destName = attrs.destination_name || null;
@@ -545,13 +573,9 @@ class RenfeCercaniasCardEditor extends HTMLElement {
   }
 }
 
-customElements.define("renfe-cercanias-card", RenfeCercaniasCard);
-customElements.define("renfe-cercanias-card-editor", RenfeCercaniasCardEditor);
-
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "renfe-cercanias-card",
-  name: "Renfe Cercanías",
-  preview: true,
-  description: "Muestra el próximo tren y siguientes salidas de Cercanías Renfe con cuenta atrás y retrasos en tiempo real."
-});
+if (!customElements.get("renfe-cercanias-card")) {
+  customElements.define("renfe-cercanias-card", RenfeCercaniasCard);
+}
+if (!customElements.get("renfe-cercanias-card-editor")) {
+  customElements.define("renfe-cercanias-card-editor", RenfeCercaniasCardEditor);
+}

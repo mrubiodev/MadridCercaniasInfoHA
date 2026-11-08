@@ -4,6 +4,16 @@
  * Soporta visualización de todas las líneas de Madrid y filtrado interactivo por línea.
  */
 
+window.customCards = window.customCards || [];
+if (!window.customCards.some((c) => c.type === "renfe-cercanias-map-card")) {
+  window.customCards.push({
+    type: "renfe-cercanias-map-card",
+    name: "Mapa Renfe Cercanías RT",
+    preview: true,
+    description: "Mapa interactivo con posiciones GPS en tiempo real de toda la red de Cercanías Madrid o filtrado por líneas."
+  });
+}
+
 const LINE_COLORS = {
   "C1": "#0099cd",
   "C2": "#00954c",
@@ -53,7 +63,18 @@ function loadLeaflet(callback) {
   }
   const existingScript = document.getElementById("leaflet-js");
   if (existingScript) {
-    existingScript.addEventListener("load", callback);
+    if (window.L) {
+      callback();
+      return;
+    }
+    existingScript.addEventListener("load", () => callback());
+    const interval = setInterval(() => {
+      if (window.L) {
+        clearInterval(interval);
+        callback();
+      }
+    }, 100);
+    setTimeout(() => clearInterval(interval), 5000);
     return;
   }
   const script = document.createElement("script");
@@ -660,13 +681,9 @@ class RenfeCercaniasMapCardEditor extends HTMLElement {
   }
 }
 
-customElements.define("renfe-cercanias-map-card", RenfeCercaniasMapCard);
-customElements.define("renfe-cercanias-map-card-editor", RenfeCercaniasMapCardEditor);
-
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "renfe-cercanias-map-card",
-  name: "Mapa Renfe Cercanías RT",
-  preview: true,
-  description: "Mapa interactivo con posiciones GPS en tiempo real de toda la red de Cercanías Madrid o filtrado por líneas."
-});
+if (!customElements.get("renfe-cercanias-map-card")) {
+  customElements.define("renfe-cercanias-map-card", RenfeCercaniasMapCard);
+}
+if (!customElements.get("renfe-cercanias-map-card-editor")) {
+  customElements.define("renfe-cercanias-map-card-editor", RenfeCercaniasMapCardEditor);
+}

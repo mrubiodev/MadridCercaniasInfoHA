@@ -3,6 +3,16 @@
  * Menú interactivo para gestionar la integración, refrescar GTFS y explorar estaciones en vivo.
  */
 
+window.customCards = window.customCards || [];
+if (!window.customCards.some((c) => c.type === "renfe-cercanias-config-card")) {
+  window.customCards.push({
+    type: "renfe-cercanias-config-card",
+    name: "Panel Renfe Cercanías",
+    preview: true,
+    description: "Panel de control para consultar y forzar refresco GTFS, explorar paradas en vivo y ver tus trayectos."
+  });
+}
+
 function formatBytes(bytes) {
   if (!bytes || bytes === 0) return "0 B";
   const k = 1024;
@@ -511,13 +521,9 @@ class RenfeCercaniasConfigCardEditor extends HTMLElement {
   }
 }
 
-customElements.define("renfe-cercanias-config-card", RenfeCercaniasConfigCard);
-customElements.define("renfe-cercanias-config-card-editor", RenfeCercaniasConfigCardEditor);
-
-window.customCards = window.customCards || [];
-window.customCards.push({
-  type: "renfe-cercanias-config-card",
-  name: "Panel Renfe Cercanías",
-  preview: true,
-  description: "Panel de control para consultar y forzar refresco GTFS, explorar paradas en vivo y ver tus trayectos."
-});
+if (!customElements.get("renfe-cercanias-config-card")) {
+  customElements.define("renfe-cercanias-config-card", RenfeCercaniasConfigCard);
+}
+if (!customElements.get("renfe-cercanias-config-card-editor")) {
+  customElements.define("renfe-cercanias-config-card-editor", RenfeCercaniasConfigCardEditor);
+}

@@ -66,29 +66,77 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
     if not os.path.exists(frontend_dir):
         return
 
+    # 1. Registrar ruta estática
     try:
-        from homeassistant.components.http import StaticPathConfig
-        await hass.http.async_register_static_paths([
-            StaticPathConfig(
+        if hasattr(hass.http, "async_register_static_paths"):
+            from homeassistant.components.http import StaticPathConfig
+            await hass.http.async_register_static_paths([
+                StaticPathConfig(
+                    "/renfe_cercanias_frontend",
+                    frontend_dir,
+                    cache_headers=False,
+                )
+            ])
+        elif hasattr(hass.http, "register_static_path"):
+            hass.http.register_static_path(
                 "/renfe_cercanias_frontend",
                 frontend_dir,
                 cache_headers=False,
             )
-        ])
     except Exception as err:
         _LOGGER.debug("Ruta estatica ya registrada o no disponible: %s", err)
 
+    cards = [
+        "/renfe_cercanias_frontend/renfe-cercanias-card.js",
+        "/renfe_cercanias_frontend/renfe-cercanias-map-card.js",
+        "/renfe_cercanias_frontend/renfe-cercanias-config-card.js",
+    ]
+
+    # 2. Inyectar en frontend global (extra_js_url)
     try:
         from homeassistant.components.frontend import add_extra_js_url
-        cards = [
-            "/renfe_cercanias_frontend/renfe-cercanias-card.js?v=1.2.1",
-            "/renfe_cercanias_frontend/renfe-cercanias-map-card.js?v=1.2.1",
-            "/renfe_cercanias_frontend/renfe-cercanias-config-card.js?v=1.2.1",
-        ]
         for card_url in cards:
             add_extra_js_url(hass, card_url)
     except Exception as err:
         _LOGGER.debug("No se pudo inyectar extra_js_url: %s", err)
+
+    # 3. Registrar directamente en recursos de Lovelace para asegurar disponibilidad
+    async def _async_register_lovelace_resources(_event=None) -> None:
+        try:
+            lovelace = hass.data.get("lovelace")
+            if not lovelace:
+                return
+
+            resources = getattr(lovelace, "resources", None)
+            if resources is None and isinstance(lovelace, dict):
+                resources = lovelace.get("resources")
+
+            if resources is None:
+                return
+
+            if hasattr(resources, "async_is_loaded") and not resources.async_is_loaded:
+                await resources.async_load()
+
+            existing_items = resources.async_items() if hasattr(resources, "async_items") else []
+            for card_url in cards:
+                base_url = card_url.split("?")[0]
+                matching = [
+                    item for item in existing_items
+                    if item.get("url", "").split("?")[0] == base_url
+                ]
+                if not matching and hasattr(resources, "async_create"):
+                    await resources.async_create({"res_type": "module", "url": card_url})
+                elif matching and hasattr(resources, "async_update_item"):
+                    for item in matching:
+                        if item.get("url") != card_url:
+                            await resources.async_update_item(
+                                item["id"], {"res_type": "module", "url": card_url}
+                            )
+        except Exception as err:
+            _LOGGER.debug("No se pudieron registrar recursos Lovelace automáticos: %s", err)
+
+    await _async_register_lovelace_resources()
+    hass.bus.async_listen_once("homeassistant_started", _async_register_lovelace_resources)
 
     hass.data.setdefault(DOMAIN, {})["frontend_registered"] = True
 
