@@ -7,6 +7,7 @@
         "description": "Configura el trayecto. Luego podras editarlo desde Configurar.",
         "data": {
           "journey_name": "Nombre del trayecto (ej: Manana C5)",
+          "stop_id": "Estación de origen (escribe para buscar o selecciona)",
           "line": "Linea (vacío para cualquiera)",
           "n_trains": "Numero de trenes a mostrar",
           "active_from": "Activo desde (HH:MM, vacio = siempre)",
@@ -66,12 +67,12 @@
         "description": "Origen actual: {current_stop}\nDestino actual: {current_dest}",
         "data": {
           "journey_name": "Nombre del trayecto",
+          "stop_id": "Estación de origen (escribe para buscar o selecciona)",
+          "destination_id": "Estación de destino (dirección)",
           "line": "Linea",
           "n_trains": "Numero de trenes",
           "active_from": "Activo desde (HH:MM)",
-          "active_to": "Activo hasta (HH:MM)",
-          "change_stop": "Cambiar estación de origen",
-          "change_destination": "Cambiar o filtrar estación de destino"
+          "active_to": "Activo hasta (HH:MM)"
         }
       },
       "stop_search": {

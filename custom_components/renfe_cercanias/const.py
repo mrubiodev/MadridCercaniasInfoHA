@@ -33,12 +33,63 @@ KEY_EXPLORER_OWNER_ENTRY = "explorer_owner_entry"
 SERVICE_EXPLORE = "explore"
 SERVICE_CLEAR_EXPLORER = "clear_explorer"
 SIGNAL_EXPLORER_UPDATED = "renfe_cercanias_explorer_updated"
-EXPLORER_MAX_POSITIONS_ATTR = 30
+EXPLORER_MAX_POSITIONS_ATTR = 250
 
 # Lineas del nucleo Madrid
-MADRID_LINES = ["C1", "C2", "C3", "C4", "C5", "C7", "C8", "C10"]
+MADRID_LINES = ["C1", "C2", "C3", "C4", "C5", "C7", "C8", "C9", "C10"]
 LINE_OPTIONS = [{"value": "", "label": "Cualquier linea"}] + [
     {"value": line, "label": line} for line in MADRID_LINES
+]
+
+# Estaciones populares de Madrid (fallback inmediato para selectores)
+MADRID_POPULAR_STATIONS = [
+    {"stop_id": "18000", "name": "Madrid - Atocha Cercanías"},
+    {"stop_id": "17000", "name": "Madrid - Chamartín"},
+    {"stop_id": "18001", "name": "Madrid - Nuevos Ministerios"},
+    {"stop_id": "18003", "name": "Madrid - Sol"},
+    {"stop_id": "18005", "name": "Madrid - Méndez Álvaro"},
+    {"stop_id": "18004", "name": "Madrid - Recoletos"},
+    {"stop_id": "98305", "name": "Madrid - Príncipe Pío"},
+    {"stop_id": "10001", "name": "Aeropuerto T4"},
+    {"stop_id": "18002", "name": "Alcalá de Henares"},
+    {"stop_id": "18008", "name": "Alcalá Universidad"},
+    {"stop_id": "35002", "name": "Alcobendas - S.S. Reyes"},
+    {"stop_id": "19001", "name": "Alcorcón"},
+    {"stop_id": "60000", "name": "Aranjuez"},
+    {"stop_id": "11000", "name": "Aravaca"},
+    {"stop_id": "18009", "name": "Azuqueca"},
+    {"stop_id": "13006", "name": "Cercedilla"},
+    {"stop_id": "60002", "name": "Ciempozuelos"},
+    {"stop_id": "35004", "name": "Colmenar Viejo"},
+    {"stop_id": "18006", "name": "Coslada"},
+    {"stop_id": "19003", "name": "Cuatro Vientos"},
+    {"stop_id": "13000", "name": "El Escorial"},
+    {"stop_id": "37002", "name": "Fuenlabrada"},
+    {"stop_id": "12002", "name": "Galapagar - La Navata"},
+    {"stop_id": "37000", "name": "Getafe Central"},
+    {"stop_id": "60005", "name": "Getafe Sector 3"},
+    {"stop_id": "18010", "name": "Guadalajara"},
+    {"stop_id": "37004", "name": "Humanes"},
+    {"stop_id": "19002", "name": "Las Retamas"},
+    {"stop_id": "12000", "name": "Las Rozas"},
+    {"stop_id": "37001", "name": "Leganés"},
+    {"stop_id": "11002", "name": "Majadahonda"},
+    {"stop_id": "19000", "name": "Móstoles"},
+    {"stop_id": "19004", "name": "Móstoles - El Soto"},
+    {"stop_id": "37005", "name": "Parla"},
+    {"stop_id": "60004", "name": "Pinto"},
+    {"stop_id": "11001", "name": "Pozuelo"},
+    {"stop_id": "19005", "name": "San José de Valderas"},
+    {"stop_id": "18007", "name": "San Fernando de Henares"},
+    {"stop_id": "12001", "name": "Torrelodones"},
+    {"stop_id": "18011", "name": "Torrejón de Ardoz"},
+    {"stop_id": "60003", "name": "Valdemoro"},
+    {"stop_id": "18012", "name": "Vallecas"},
+    {"stop_id": "18013", "name": "Vicálvaro"},
+    {"stop_id": "12004", "name": "Villalba"},
+    {"stop_id": "37006", "name": "Villaverde Alto"},
+    {"stop_id": "60006", "name": "Villaverde Bajo"},
+    {"stop_id": "37007", "name": "Zarzaquemada"},
 ]
 
 # Configuracion por defecto

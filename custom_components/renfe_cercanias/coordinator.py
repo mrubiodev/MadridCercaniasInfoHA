@@ -23,6 +23,7 @@ from .const import (
     GTFS_BATCH_SIZE,
     GTFS_MAX_AGE_SECS,
     GTFS_STATIC_URL,
+    MADRID_POPULAR_STATIONS,
     RT_POSITIONS_URL,
     RT_UPDATES_URL,
     SCAN_INTERVAL_SECS,
@@ -330,15 +331,29 @@ class RenfeGtfsManager:
         return await self.hass.async_add_executor_job(self._search_stops_sync, query, limit)
 
     def _search_stops_sync(self, query: str, limit: int | None = 60) -> list[dict[str, Any]]:
-        conn = sqlite3.connect(self._db_path)
-        c = conn.cursor()
+        all_rows = []
+        if os.path.exists(self._db_path):
+            try:
+                conn = sqlite3.connect(self._db_path)
+                c = conn.cursor()
+                c.execute(
+                    "SELECT stop_id, stop_name, stop_lat, stop_lon "
+                    "FROM stops",
+                )
+                all_rows = c.fetchall()
+                conn.close()
+            except Exception as err:
+                _LOGGER.warning("Error leyendo stops de SQLite: %s", err)
 
-        c.execute(
-            "SELECT stop_id, stop_name, stop_lat, stop_lon "
-            "FROM stops",
-        )
-        all_rows = c.fetchall()
-        conn.close()
+        if not all_rows:
+            # Fallback a estaciones populares de Madrid si la BD aun no esta disponible
+            query_raw = (query or "").strip().lower()
+            if not query_raw:
+                return list(MADRID_POPULAR_STATIONS)
+            return [
+                s for s in MADRID_POPULAR_STATIONS
+                if query_raw in s["name"].lower() or query_raw in s["stop_id"].lower()
+            ]
 
         query_raw = (query or "").strip()
         query_norm = _normalize_text(query_raw)

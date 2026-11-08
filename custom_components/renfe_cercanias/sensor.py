@@ -233,6 +233,7 @@ class RenfeJourneySensor(CoordinatorEntity[dict[str, Any]], SensorEntity):
             "trains": self._trains,
             "trains_count": len(self._trains),
             "active_trains_on_line": len(positions),
+            "positions": positions,
             "updated_at": self._last_update.strftime("%H:%M:%S") if self._last_update else None,
         }
 

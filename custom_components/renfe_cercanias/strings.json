@@ -7,6 +7,7 @@
         "description": "Configure a journey. You can edit it later from Configure.",
         "data": {
           "journey_name": "Journey name (e.g. Morning C5)",
+          "stop_id": "Origin station (search or select)",
           "line": "Line (leave empty for any)",
           "n_trains": "Number of trains to show",
           "active_from": "Active from (HH:MM, empty = always)",
@@ -66,12 +67,12 @@
         "description": "Current origin: {current_stop}\nCurrent destination: {current_dest}",
         "data": {
           "journey_name": "Journey name",
+          "stop_id": "Origin station (search or select)",
+          "destination_id": "Destination station",
           "line": "Line",
           "n_trains": "Number of trains",
           "active_from": "Active from (HH:MM)",
-          "active_to": "Active to (HH:MM)",
-          "change_stop": "Change origin station",
-          "change_destination": "Change or set destination station"
+          "active_to": "Active to (HH:MM)"
         }
       },
       "stop_search": {

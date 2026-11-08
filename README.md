@@ -89,17 +89,20 @@ show_next_only: false
 ### 2. `renfe-cercanias-map-card` - Mapa de Trenes en Vivo
 Mapa interactivo Leaflet que dibuja las posiciones GPS en tiempo real de todos los trenes del núcleo de Cercanías Madrid reportados por Renfe.
 
-* **Iconos dinámicos:** Cada tren lleva el círculo distintivo con la letra y color de su línea (`C1`, `C2`, `C3`, `C4`, `C5`, `C7`, `C8`, `C10`).
-* **Popups al pulsar:** Muestra velocidad instantánea (`km/h`), estado (`En trayecto` / `Detenido en parada`) e identificador de viaje.
-* **Filtro por línea:** Permite ver toda la red o aislar una línea específica.
+* **Botonera interactiva en vivo:** Incluye píldoras en la parte superior `[Todas] [C1] [C2] [C3] [C4] [C5] [C7] [C8] [C9] [C10]` para alternar entre ver toda la Comunidad de Madrid o filtrar por línea en 1 clic.
+* **Iconos dinámicos:** Cada tren lleva el círculo distintivo con la letra y color de su línea oficial (`C1` a `C10`).
+* **Estaciones en mapa:** Marcadores sutiles de las principales estaciones de Madrid (Atocha, Chamartín, Sol, Nuevos Ministerios...).
+* **Popups al pulsar:** Muestra velocidad instantánea (`km/h`), estado (`En trayecto` / `Detenido en parada`), código de viaje y destino.
+* **Botón recentrar:** Centra el mapa de nuevo sobre Madrid en cualquier momento.
 
 #### Configuración en Lovelace:
 ```yaml
 type: custom:renfe-cercanias-map-card
-entity: sensor.renfe_cercanias_explorador
-height: 420
+title: "Trenes en Vivo Madrid RT"
+height: 440
 zoom: 11
-line_filter: ""   # Deja vacío para ver todos o escribe "C5", "C3", etc.
+show_filter_bar: true   # Botonera interactiva de líneas (Todas / C1..C10)
+show_stations: true     # Puntos de estaciones principales en el mapa
 ```
 
 ---
@@ -160,15 +163,13 @@ show_journeys: true
 
 1. En Home Assistant ve a **Ajustes** > **Dispositivos y servicios**.
 2. Pulsa en **Añadir integración** y busca **Renfe Cercanías Madrid**.
-3. El asistente te guiará paso a paso:
-   * **1. Parámetros:** Nombre (ej. *Trabajo C5*), línea opcional, número de trenes y ventana horaria.
-   * **2. Búsqueda de Origen:** Escribe el nombre o ID de tu estación (ej. *Atocha*, *Alcorcón*).
-   * **3. Selección de Estación:** Elige la estación en la lista desplegable.
-   * **4. Destino (Dirección):** Elige tu estación de destino para filtrar la dirección correcta del viaje.
-   * **5. Previsualización en Vivo:** Comprueba las salidas calculadas en ese instante antes de guardar.
+3. El asistente incluye autocompletado rápido:
+   * **1. Parámetros y Origen:** Nombre (ej. *Trabajo C5*), estación de origen (desplegable con todas las estaciones de Madrid o escribe para buscar al vuelo) y línea opcional.
+   * **2. Destino (Dirección):** Elige tu estación de destino para filtrar la dirección correcta del viaje.
+   * **3. Previsualización en Vivo:** Comprueba las salidas calculadas en ese instante antes de guardar.
 
 > [!TIP]
-> Puedes pulsar en **Configurar** sobre cualquier trayecto ya creado para cambiar el destino, la estación o la línea sin tener que borrar el sensor.
+> **Controles interactivos incluidos:** Cada trayecto crea automáticamente entidades de tipo `select` (`select.<trayecto>_estacion_de_origen`, `select.<trayecto>_linea` y `select.<trayecto>_destino`) que puedes colocar en cualquier tarjeta de tu panel para cambiar de estación al instante sin entrar en ajustes. Además, puedes pulsar en **Configurar** sobre cualquier trayecto ya creado para editarlo todo en una sola pantalla.
 
 ---
 
@@ -210,6 +211,16 @@ Cada trayecto genera un sensor (`sensor.<nombre_del_trayecto>`):
 | `trains` | `list` | Lista de todos los próximos trenes con horario, línea, retraso y minutos. |
 | `is_active` | `bool` | `true` si está dentro de la ventana horaria configurada. |
 | `active_trains_on_line` | `int` | Número de trenes circulando en directo en esa línea. |
+| `positions` | `list` | Posiciones GPS en tiempo real de los trenes en esa línea para el mapa. |
+
+### Controles Interactivos de Selección (`select`)
+Para cada trayecto se generan entidades de control que puedes añadir a tus paneles o automatizaciones:
+* `select.<trayecto>_estacion_de_origen`: Desplegable con todas las estaciones de Cercanías Madrid para cambiar el origen al vuelo.
+* `select.<trayecto>_linea`: Desplegable para filtrar por línea (`Cualquier línea`, `C1` a `C10`).
+* `select.<trayecto>_destino`: Desplegable dinámico para filtrar la dirección o cabecera del tren.
+
+### Entidades Botón (`button`)
+* `button.<trayecto>_refrescar_gtfs`: Botón para forzar la actualización de la base de datos de horarios de Renfe.
 
 ---
 

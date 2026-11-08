@@ -39,6 +39,7 @@ from .const import (
     KEY_COORDINATOR,
     KEY_GTFS,
     LINE_OPTIONS,
+    MADRID_POPULAR_STATIONS,
     MANAGED_BY_UI,
     MANAGED_BY_YAML,
 )
@@ -98,14 +99,54 @@ def _get_gtfs(hass):
     return hass.data[DOMAIN][KEY_GTFS]
 
 
-def _journey_schema(defaults: dict[str, Any]) -> vol.Schema:
-    """Schema del paso principal de configuracion."""
+async def _async_get_station_options(hass, gtfs) -> list[SelectOptionDict]:
+    """Carga catalogo de estaciones para el selector desplegable con autocompletado."""
+    stops = []
+    try:
+        stops = await gtfs.search_stops("", limit=None)
+    except Exception:
+        stops = []
+
+    if not stops:
+        stops = list(MADRID_POPULAR_STATIONS)
+
+    options: list[SelectOptionDict] = []
+    seen = set()
+    for s in stops:
+        sid = str(s.get("stop_id", "")).strip()
+        name = str(s.get("name", sid)).strip()
+        if sid and sid not in seen:
+            seen.add(sid)
+            options.append(SelectOptionDict(value=sid, label=f"{name} ({sid})"))
+
+    options.sort(key=lambda x: x["label"])
+    return options
+
+
+def _journey_schema(defaults: dict[str, Any], stop_options: list[SelectOptionDict]) -> vol.Schema:
+    """Schema del paso principal de configuracion con selector de estacion integrado."""
+    default_stop = defaults.get(CONF_STOP_ID, "")
+    if not default_stop and stop_options:
+        # Default a Madrid - Atocha Cercanías si está presente
+        atocha = next((opt["value"] for opt in stop_options if "18000" in opt["value"] or "Atocha" in opt["label"]), stop_options[0]["value"])
+        default_stop = atocha
+
     return vol.Schema(
         {
             vol.Required(
                 CONF_JOURNEY_NAME,
                 default=defaults.get(CONF_JOURNEY_NAME, ""),
             ): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT)),
+            vol.Required(
+                CONF_STOP_ID,
+                default=default_stop,
+            ): SelectSelector(
+                SelectSelectorConfig(
+                    options=stop_options,
+                    mode=SelectSelectorMode.DROPDOWN,
+                    custom_value=True,
+                )
+            ),
             vol.Optional(
                 CONF_LINE,
                 default=defaults.get(CONF_LINE, ""),
@@ -165,21 +206,41 @@ class RenfeCercaniasConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
-        """Paso 1: parametros del trayecto."""
+        """Paso 1: parametros del trayecto con selector desplegable interactivo."""
         errors: dict[str, str] = {}
+        gtfs = _get_gtfs(self.hass)
+        stop_options = await _async_get_station_options(self.hass, gtfs)
 
         if user_input is not None:
+            raw_stop = str(user_input.get(CONF_STOP_ID, "")).strip()
+            # Resolver stop_name y stop_id
+            matched_stop_id = raw_stop
+            matched_stop_name = raw_stop
+            for opt in stop_options:
+                if opt["value"] == raw_stop:
+                    matched_stop_name = opt["label"].split(" (")[0]
+                    matched_stop_id = opt["value"]
+                    break
+                elif opt["label"].lower().startswith(raw_stop.lower()):
+                    matched_stop_name = opt["label"].split(" (")[0]
+                    matched_stop_id = opt["value"]
+                    break
+
+            user_input[CONF_STOP_ID] = matched_stop_id
+            user_input[CONF_STOP_NAME] = matched_stop_name
+
             try:
                 user_input = _normalize_journey(user_input, managed_by=MANAGED_BY_UI)
             except vol.Invalid as err:
                 errors["base"] = str(err)
             else:
                 self._data.update(user_input)
-                return await self.async_step_stop_search()
+                # Pasa directamente a elegir el destino (direccion) o previsualizar
+                return await self.async_step_destination_select()
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_journey_schema(self._data),
+            data_schema=_journey_schema(self._data, stop_options),
             errors=errors,
         )
 
@@ -454,35 +515,123 @@ class RenfeCercaniasOptionsFlow(config_entries.OptionsFlow):
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> config_entries.FlowResult:
-        """Paso inicial de opciones."""
+        """Paso inicial de opciones con selectores de estacion y destino interactivos."""
         if self._entry.source == SOURCE_IMPORT:
             return self.async_abort(reason="yaml_managed")
 
         errors: dict[str, str] = {}
+        gtfs = _get_gtfs(self.hass)
+        stop_options = await _async_get_station_options(self.hass, gtfs)
+
+        current_stop_id = self._data.get(CONF_STOP_ID, "")
+        dest_options = [SelectOptionDict(value="__no_filter__", label="Cualquier destino (sin filtro)")]
+        if current_stop_id:
+            try:
+                destinations = await self.hass.async_add_executor_job(
+                    gtfs.get_destinations_for_stop, current_stop_id
+                )
+                for d in destinations:
+                    dest_options.append(SelectOptionDict(value=d["stop_id"], label=d["name"]))
+            except Exception:
+                pass
 
         if user_input is not None:
-            change_stop = bool(user_input.pop("change_stop", False))
-            change_destination = bool(user_input.pop("change_destination", False))
+            raw_stop = str(user_input.get(CONF_STOP_ID, "")).strip()
+            matched_stop_id = raw_stop
+            matched_stop_name = raw_stop
+            for opt in stop_options:
+                if opt["value"] == raw_stop:
+                    matched_stop_name = opt["label"].split(" (")[0]
+                    matched_stop_id = opt["value"]
+                    break
+                elif opt["label"].lower().startswith(raw_stop.lower()):
+                    matched_stop_name = opt["label"].split(" (")[0]
+                    matched_stop_id = opt["value"]
+                    break
+
+            user_input[CONF_STOP_ID] = matched_stop_id
+            user_input[CONF_STOP_NAME] = matched_stop_name
+
+            dest_id = user_input.get(CONF_DESTINATION_ID)
+            if dest_id and dest_id != "__no_filter__":
+                user_input[CONF_DESTINATION_ID] = dest_id
+                dest_name = next(
+                    (opt["label"] for opt in dest_options if opt["value"] == dest_id),
+                    dest_id,
+                )
+                user_input[CONF_DESTINATION_NAME] = dest_name
+            else:
+                user_input[CONF_DESTINATION_ID] = ""
+                user_input[CONF_DESTINATION_NAME] = ""
+
             try:
                 user_input = _normalize_journey(user_input, managed_by=MANAGED_BY_UI)
             except vol.Invalid as err:
                 errors["base"] = str(err)
             else:
                 self._data.update(user_input)
-                if change_stop:
-                    return await self.async_step_stop_search()
-                if change_destination:
-                    return await self.async_step_destination_select()
                 return self.async_create_entry(title="", data=self._data)
+
+        current_dest_id = self._data.get(CONF_DESTINATION_ID) or "__no_filter__"
+        if not any(opt["value"] == current_dest_id for opt in dest_options):
+            current_dest_id = "__no_filter__"
+
+        schema = vol.Schema(
+            {
+                vol.Required(
+                    CONF_JOURNEY_NAME,
+                    default=self._data.get(CONF_JOURNEY_NAME, ""),
+                ): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT)),
+                vol.Required(
+                    CONF_STOP_ID,
+                    default=current_stop_id or (stop_options[0]["value"] if stop_options else ""),
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=stop_options,
+                        mode=SelectSelectorMode.DROPDOWN,
+                        custom_value=True,
+                    )
+                ),
+                vol.Optional(
+                    CONF_DESTINATION_ID,
+                    default=current_dest_id,
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=dest_options,
+                        mode=SelectSelectorMode.DROPDOWN,
+                    )
+                ),
+                vol.Optional(
+                    CONF_LINE,
+                    default=self._data.get(CONF_LINE, ""),
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=[
+                            SelectOptionDict(value=opt["value"], label=opt["label"])
+                            for opt in LINE_OPTIONS
+                        ],
+                        mode=SelectSelectorMode.DROPDOWN,
+                    )
+                ),
+                vol.Optional(
+                    CONF_N_TRAINS,
+                    default=self._data.get(CONF_N_TRAINS, DEFAULT_N_TRAINS),
+                ): NumberSelector(
+                    NumberSelectorConfig(min=1, max=5, step=1, mode=NumberSelectorMode.BOX)
+                ),
+                vol.Optional(
+                    CONF_ACTIVE_FROM,
+                    default=self._data.get(CONF_ACTIVE_FROM, ""),
+                ): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT)),
+                vol.Optional(
+                    CONF_ACTIVE_TO,
+                    default=self._data.get(CONF_ACTIVE_TO, ""),
+                ): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT)),
+            }
+        )
 
         current_stop = self._data.get(CONF_STOP_NAME, self._data.get(CONF_STOP_ID, "-"))
         current_dest = self._data.get(CONF_DESTINATION_NAME) or self._data.get(CONF_DESTINATION_ID) or "Cualquiera (sin filtro)"
-        schema = _journey_schema(self._data).extend(
-            {
-                vol.Optional("change_stop", default=False): BooleanSelector(),
-                vol.Optional("change_destination", default=False): BooleanSelector(),
-            }
-        )
 
         return self.async_show_form(
             step_id="init",

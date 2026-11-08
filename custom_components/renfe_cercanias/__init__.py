@@ -33,7 +33,7 @@ from .const import (
 )
 from .coordinator import RenfeGtfsManager, RenfeRTCoordinator
 
-PLATFORMS: list[str] = ["sensor", "button"]
+PLATFORMS: list[str] = ["sensor", "button", "select"]
 
 _JOURNEY_SCHEMA = vol.Schema(
     {
@@ -81,9 +81,9 @@ async def _async_register_frontend(hass: HomeAssistant) -> None:
     try:
         from homeassistant.components.frontend import add_extra_js_url
         cards = [
-            "/renfe_cercanias_frontend/renfe-cercanias-card.js",
-            "/renfe_cercanias_frontend/renfe-cercanias-map-card.js",
-            "/renfe_cercanias_frontend/renfe-cercanias-config-card.js",
+            "/renfe_cercanias_frontend/renfe-cercanias-card.js?v=1.2.1",
+            "/renfe_cercanias_frontend/renfe-cercanias-map-card.js?v=1.2.1",
+            "/renfe_cercanias_frontend/renfe-cercanias-config-card.js?v=1.2.1",
         ]
         for card_url in cards:
             add_extra_js_url(hass, card_url)
